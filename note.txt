@@ -1,0 +1,29 @@
+=== NVM & Node Quick Install ===
+
+# Install NVM (https://github.com/nvm-sh/nvm/releases)
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.4/install.sh | bash
+source ~/.bashrc
+nvm -v
+
+# Install Node 18
+nvm install 18
+nvm use 18
+node -v
+which node
+
+# Install System Packages
+sudo apt update
+sudo apt install curl wget ffmpeg
+
+# Install  MediaMTX (https://github.com/bluenviron/mediamtx/releases)
+wget -P ./temp https://github.com/bluenviron/mediamtx/releases/download/v1.14.0/mediamtx_v1.14.0_linux_amd64.tar.gz
+tar -xvzf ./temp/mediamtx_v1.14.0_linux_amd64.tar.gz -C ./temp
+chmod +x ./temp/mediamtx
+./temp/mediamtx --version
+
+=== Remove Tool ===
+rm -rf ~/.nvm
+sudo apt purge wget
+sudo apt purge curl
+sudo apt purge ffmpeg
+sudo apt autoremove

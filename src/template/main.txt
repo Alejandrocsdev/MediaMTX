@@ -1,0 +1,5 @@
+# RTSP
+rtsp: yes
+rtspAddress: :{{RTSP_PORT}}
+paths:
+{{RTSP_PATHS}}

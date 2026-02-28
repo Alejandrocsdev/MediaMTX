@@ -1,0 +1,4 @@
+  {{RTSP_PATH}}:
+    runOnInit: >
+      ffmpeg -re -stream_loop -1 -i {{VIDEO_PATH}} -c:v copy -bsf:v h264_mp4toannexb -an -f rtsp rtsp://{{RTSP_HOST}}:{{RTSP_PORT}}/{{RTSP_PATH}}
+    runOnInitRestart: yes
