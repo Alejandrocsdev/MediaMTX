@@ -1,0 +1,13 @@
+===================
+MediaMTX — COMMANDS
+===================
+
+---------------------
+node run.js <command>
+---------------------
+
+help		Show this message
+
+rtsp		Run rtsp streams
+
+config		Generate rtsp.yml config file

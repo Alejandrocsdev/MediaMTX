@@ -1,12 +1,17 @@
 const fs = require('fs');
 const path = require('path');
 
+const { removeEmpty } = require('../utils');
+
 const config = () => {
   const root = process.cwd();
 
   const configPath = path.join(root, 'config.json');
   const templateDir = path.join(root, 'src', 'template');
+
   const videosDir = path.join(root, 'videos');
+	removeEmpty(videosDir)
+
   const outputFile = path.join(root, 'rtsp.yml');
 
   // --- Validate files ---
@@ -50,7 +55,8 @@ const config = () => {
   let pathsBlock = '';
 
   videos.forEach((file, index) => {
-    const streamName = `cam${index + 1}`;
+    const videoName = path.parse(file).name;
+    const streamName = `${videoName}/cam${index + 1}`;
     const videoPath = path.join(videosDir, file);
 
     let block = pathTemplate
@@ -72,8 +78,9 @@ const config = () => {
 
   console.log(`✅ rtsp.yml generated with ${videos.length} stream(s)`);
 
-  videos.forEach((_, index) => {
-    const rtspUrl = `rtsp://${config.rtspHost}:${config.rtspPort}/cam${index + 1}`;
+  videos.forEach((file, index) => {
+		const videoName = path.parse(file).name;
+    const rtspUrl = `rtsp://${config.rtspHost}:${config.rtspPort}/${videoName}/cam${index + 1}`;
     console.log(`🔵 ${rtspUrl}`);
   });
 };

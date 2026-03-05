@@ -1,3 +1,4 @@
+const help = require('./help');
 const rtsp = require('./rtsp');
 const config = require('./config');
 
@@ -15,10 +16,12 @@ const commands = async (argv) => {
   }
 
   switch (command) {
-    case 'config':
-      return config();
+    case 'help':
+      return help();
     case 'rtsp':
       return rtsp();
+    case 'config':
+      return config();
   }
 
   throw new Error(`❌ Unknown or malformed command: "${command}"`);

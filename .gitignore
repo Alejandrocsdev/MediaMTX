@@ -1,4 +1,5 @@
 temp
-videos
 rtsp.yml
 face.jpg
+videos/*
+!videos/empty.txt
