@@ -55,8 +55,7 @@ const config = () => {
   let pathsBlock = '';
 
   videos.forEach((file, index) => {
-    const videoName = path.parse(file).name;
-    const streamName = `${videoName}/cam${index + 1}`;
+    const streamName = `cam${index + 1}`;
     const videoPath = path.join(videosDir, file);
 
     let block = pathTemplate
@@ -80,8 +79,9 @@ const config = () => {
 
   videos.forEach((file, index) => {
 		const videoName = path.parse(file).name;
-    const rtspUrl = `rtsp://${config.rtspHost}:${config.rtspPort}/${videoName}/cam${index + 1}`;
-    console.log(`🔵 ${rtspUrl}`);
+    const rtspUrl = `rtsp://${config.rtspHost}:${config.rtspPort}/cam${index + 1}`;
+    console.log(`🔵 ${videoName}:`);
+    console.log(`${rtspUrl}`);
   });
 };
 
