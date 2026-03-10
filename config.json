@@ -1,4 +1,11 @@
 {
-	"rtspHost": "192.168.1.100",
-	"rtspPort": 8554
+  "rtspHost": "127.0.0.1",
+  "rtspPort": 9000,
+  "webcam": [
+    {
+      "name": "webcam1",
+      "device": "/dev/video2",
+      "format": "mjpeg"
+    }
+  ]
 }

@@ -11,3 +11,5 @@ help		Show this message
 rtsp		Run rtsp streams
 
 config		Generate rtsp.yml config file
+
+webcam		Extracts webcam names connected to the device

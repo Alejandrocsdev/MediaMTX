@@ -1,0 +1,4 @@
+  {{RTSP_PATH}}:
+    runOnInit: >
+      ffmpeg -f v4l2 -input_format mjpeg -video_size 1920x1080 -framerate 30 -i {{WEBCAM}} -vcodec libx264 -preset veryfast -tune zerolatency -pix_fmt yuv420p -f rtsp rtsp://{{RTSP_HOST}}:{{RTSP_PORT}}/{{RTSP_PATH}}
+    runOnInitRestart: yes

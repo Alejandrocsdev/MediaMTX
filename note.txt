@@ -1,6 +1,6 @@
 # Install System Packages
 sudo apt update
-sudo apt install curl wget ffmpeg
+sudo apt install curl wget ffmpeg v4l-utils
 
 === NVM & Node Quick Install ===
 
@@ -26,6 +26,7 @@ rm -rf ~/.nvm
 sudo apt purge wget
 sudo apt purge curl
 sudo apt purge ffmpeg
+sudo apt purge v4l-utils
 sudo apt autoremove
 
 === Helper ===

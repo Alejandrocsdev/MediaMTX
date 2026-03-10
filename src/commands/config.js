@@ -10,7 +10,7 @@ const config = () => {
   const templateDir = path.join(root, 'src', 'template');
 
   const videosDir = path.join(root, 'videos');
-	removeEmpty(videosDir)
+  removeEmpty(videosDir);
 
   const outputFile = path.join(root, 'rtsp.yml');
 
@@ -35,6 +35,11 @@ const config = () => {
     'utf8',
   );
 
+  const webcamTemplate = fs.readFileSync(
+    path.join(templateDir, 'webcamPaths.txt'),
+    'utf8',
+  );
+
   const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
 
   // --- Scan videos ---
@@ -54,6 +59,7 @@ const config = () => {
 
   let pathsBlock = '';
 
+  // --- Video streams ---
   videos.forEach((file, index) => {
     const streamName = `cam${index + 1}`;
     const videoPath = path.join(videosDir, file);
@@ -67,6 +73,19 @@ const config = () => {
     pathsBlock += block + '\n';
   });
 
+  // --- Webcam streams ---
+  if (Array.isArray(config.webcam)) {
+    config.webcam.forEach((cam) => {
+      let block = webcamTemplate
+        .replaceAll('{{RTSP_PATH}}', cam.name)
+        .replaceAll('{{WEBCAM}}', cam.device)
+        .replaceAll('{{RTSP_HOST}}', config.rtspHost)
+        .replaceAll('{{RTSP_PORT}}', config.rtspPort);
+
+      pathsBlock += block + '\n';
+    });
+  }
+
   // --- Build final YAML ---
 
   const output = mainTemplate
@@ -75,14 +94,29 @@ const config = () => {
 
   fs.writeFileSync(outputFile, output);
 
-  console.log(`✅ rtsp.yml generated with ${videos.length} stream(s)`);
+  const webcamCount = Array.isArray(config.webcam) ? config.webcam.length : 0;
+  const totalStreams = videos.length + webcamCount;
 
+  console.log(`✅ rtsp.yml generated with ${totalStreams} stream(s)\n`);
+
+  // --- Print video streams ---
   videos.forEach((file, index) => {
-		const videoName = path.parse(file).name;
+    const videoName = path.parse(file).name;
     const rtspUrl = `rtsp://${config.rtspHost}:${config.rtspPort}/cam${index + 1}`;
-    console.log(`🔵 ${videoName}:`);
-    console.log(`${rtspUrl}`);
+
+    console.log(`${videoName}:`);
+    console.log(`${rtspUrl}\n`);
   });
+
+  // --- Print webcam streams ---
+  if (webcamCount > 0) {
+    config.webcam.forEach((cam) => {
+      const rtspUrl = `rtsp://${config.rtspHost}:${config.rtspPort}/${cam.name}`;
+
+      console.log(`${cam.name}:`);
+      console.log(`${rtspUrl}\n`);
+    });
+  }
 };
 
 module.exports = config;

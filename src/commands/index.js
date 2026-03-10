@@ -1,6 +1,7 @@
 const help = require('./help');
 const rtsp = require('./rtsp');
 const config = require('./config');
+const webcam = require('./webcam');
 
 const commands = async (argv) => {
   const args = argv.slice(2);
@@ -22,6 +23,8 @@ const commands = async (argv) => {
       return rtsp();
     case 'config':
       return config();
+    case 'webcam':
+      return webcam();
   }
 
   throw new Error(`❌ Unknown or malformed command: "${command}"`);
