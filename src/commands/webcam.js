@@ -1,17 +1,37 @@
 const fs = require('fs');
-const path = require('path');
 const { execSync } = require('child_process');
 
-const webcam = () => {
-  const root = process.cwd();
-  const configPath = path.join(root, 'config.json');
+const getFormats = (output) => {
+  const formats = [];
 
-  if (!fs.existsSync(configPath)) {
-    throw new Error('❌ config.json not found');
+  const lines = output.split('\n');
+
+  for (const line of lines) {
+    const start = line.indexOf("'");
+    const end = line.indexOf("'", start + 1);
+
+    if (start !== -1 && end !== -1) {
+      const format = line.slice(start + 1, end);
+      formats.push(format);
+    }
   }
 
-  const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+  return formats;
+};
 
+const mapFormat = (format) => {
+  const formatMap = {
+    YUYV: 'yuyv422',
+    MJPG: 'mjpeg',
+    UYVY: 'uyvy422',
+    H264: 'h264',
+    NV12: 'nv12',
+  };
+
+  return formatMap[format] || format.toLowerCase();
+};
+
+const webcam = () => {
   const devices = fs
     .readdirSync('/dev')
     .filter((device) => device.startsWith('video'))
@@ -21,33 +41,40 @@ const webcam = () => {
 
   devices.forEach((device) => {
     try {
-      const output = execSync(`v4l2-ctl --device=${device} --list-formats`, {
+      const formatsOutput = execSync(
+        `v4l2-ctl --device=${device} --list-formats`,
+        { encoding: 'utf8' },
+      );
+
+      const formats = getFormats(formatsOutput);
+
+      if (!formats.length) return;
+
+      const nameOutput = execSync(`v4l2-ctl --device=${device} --info`, {
         encoding: 'utf8',
       });
 
-      if (output.includes('MJPG') || output.includes('YUYV')) {
-        webcams.push({
-          name: `webcam${webcams.length + 1}`,
-          device,
-          format: output.includes('MJPG') ? 'mjpeg' : 'yuyv',
-        });
-      }
-    } catch {
-      // ignore invalid devices
+      const modelLine = nameOutput
+        .split('\n')
+        .find((line) => line.toLowerCase().includes('model'));
+
+      const model = modelLine
+        ? modelLine.substring(modelLine.indexOf(':') + 1).trim()
+        : 'Unknown Webcam';
+
+      webcams.push({
+        name: `webcam${webcams.length + 1}`,
+        device,
+        model,
+        formats,
+        format: mapFormat(formats[0]),
+      });
+    } catch (error) {
+      // console.log(`Skipping ${device}: ${error.message}`);
     }
   });
 
-  config.webcam = webcams;
-
-  fs.writeFileSync(configPath, JSON.stringify(config, null, 2));
-
-  console.log(`✅ ${webcams.length} webcam(s) detected\n`);
-
-  webcams.forEach((cam) => {
-    console.log(`🔵 ${cam.name}`);
-    console.log(`   device: ${cam.device}`);
-    console.log(`   format: ${cam.format}\n`);
-  });
+  return webcams;
 };
 
 module.exports = webcam;

@@ -1,6 +1,8 @@
 const fs = require('fs');
 const path = require('path');
 
+const detectWebcams = require('./webcam');
+
 const { removeEmpty } = require('../utils');
 
 const config = () => {
@@ -42,8 +44,12 @@ const config = () => {
 
   const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
 
-  // --- Scan videos ---
+  // --- Detect webcams ---
+  const webcams = detectWebcams();
 
+  fs.writeFileSync(configPath, JSON.stringify(config, null, 2));
+
+  // --- Scan videos ---
   const videos = fs.readdirSync(videosDir).filter((file) => {
     const fullPath = path.join(videosDir, file);
     const isFile = fs.statSync(fullPath).isFile();
@@ -74,11 +80,12 @@ const config = () => {
   });
 
   // --- Webcam streams ---
-  if (Array.isArray(config.webcam)) {
-    config.webcam.forEach((cam) => {
+  if (Array.isArray(webcams)) {
+    webcams.forEach((cam) => {
       let block = webcamTemplate
         .replaceAll('{{RTSP_PATH}}', cam.name)
         .replaceAll('{{WEBCAM}}', cam.device)
+        .replaceAll('{{FORMAT}}', cam.format)
         .replaceAll('{{RTSP_HOST}}', config.rtspHost)
         .replaceAll('{{RTSP_PORT}}', config.rtspPort);
 
@@ -94,7 +101,7 @@ const config = () => {
 
   fs.writeFileSync(outputFile, output);
 
-  const webcamCount = Array.isArray(config.webcam) ? config.webcam.length : 0;
+  const webcamCount = Array.isArray(webcams) ? webcams.length : 0;
   const totalStreams = videos.length + webcamCount;
 
   console.log(`✅ rtsp.yml generated with ${totalStreams} stream(s)\n`);
@@ -108,12 +115,17 @@ const config = () => {
     console.log(`${rtspUrl}\n`);
   });
 
-  // --- Print webcam streams ---
+  // --- Print webcam info ---
   if (webcamCount > 0) {
-    config.webcam.forEach((cam) => {
-      const rtspUrl = `rtsp://${config.rtspHost}:${config.rtspPort}/${cam.name}`;
+    console.log(`✅ ${webcamCount} webcam(s) detected\n`);
 
+    webcams.forEach((cam) => {
       console.log(`${cam.name}:`);
+      console.log(`${cam.device} - ${cam.model}`);
+
+      console.log(`formats: ${cam.formats.join(', ')}`);
+
+      const rtspUrl = `rtsp://${config.rtspHost}:${config.rtspPort}/${cam.name}`;
       console.log(`${rtspUrl}\n`);
     });
   }
